@@ -1,89 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			rel="stylesheet"
+			href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+		/>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+		<title>Captcha</title>
+	</head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <title>Captcha</title>
-</head>
+	<body>
+		<div class="container text-center">
+			<h1 class="m-5">Captcha</h1>
+			<div class="d-flex flex-column align-items-center">
+				<div id="alert_parent" style="max-width: 500px" class="alert w-100">
+					<button type="button" class="close">&times;</button>
+					<span id="alert_msg"></span>
+				</div>
+				<input
+					style="max-width: 400px"
+					type="text"
+					class="p-2 w-100 m-2"
+					id="code_input"
+					placeholder="Enter Code"
+				/>
 
-<body>
-    <div class="container-fluid d-flex flex-column align-items-center justify-content-center vh-100">
-        <span id="alert"></span>
-        <div style="max-width: 400px;">
-            <h1 class="text-center mb-3">Captcha</h1>
-            <div class="m-2 form-group text-center text-middle">
-                <input type="text" id="inputcode" class="form-control hidealert" placeholder="Enter Code">
-            </div>
-            <div class="mb-2">
-                <img id="captchaimg" alt="Captcha Image">
-                <button id="reset" class="btn btn-warning hidealert">Reset</button>
-            </div>
-            <button id="login" type="submit" class="btn btn-primary w-100 m-0 hidealert">Check</button>
-        </div>
-    </div>
-</body>
-
+				<button
+					style="max-width: 400px"
+					id="check_btn"
+					class="w-100 p-3 m-2 btn btn-primary"
+				>
+					Check
+				</button>
+				<div class="m-1">
+					<img class="m-1" id="captcha_img" src="/server/captcha.php" />
+					<button id="reset_btn" class="m-1 btn btn-warning">Reset</button>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>
+
 <script>
-$("#alert").hide();
+"use strict";
+$("#alert_parent").hide();
 
 class Captcha {
-    posturl = "http://localhost/Captcha/check.php";
-    imgurl = "http://localhost/Captcha/captcha.php";
-    reset = () => {
-        $("#captchaimg").attr("src", this.imgurl);
-    }
-    check = (value, newCall) => {
-        let newForm = new FormData();
-        newForm.append("enteredcode", value);
+	constructor() {
+		this.captcha_url = location.origin + "/server/captcha.php";
+		this.check_url = location.origin + "/server/check.php";
+	}
 
-        let beforeSend = () => $("#login").attr("disabled", true).html("Please Wait...");
-        let success = (data) => {
-            $("#login").attr("disabled", false).html("Check");
-            if (data == 1) {
-                $("#alert").addClass("text-success");
-                $("#alert").html("You are human :)");
-                $("#alert").show();
-            } else {
-                $("#alert").addClass("text-danger");
-                $("#alert").html("You are not human :(");
-                $("#alert").show();
-            }
-            $("#inputcode").val("");
-            newCall.reset();
-        }
+	changeAlert = (status, msg) => {
+		$("#alert_parent").removeClass("alert-danger", "alert-success");
 
-        $.ajax({
-            url: this.posturl,
-            type: "POST",
-            data: newForm,
-            contentType: false,
-            processData: false,
-            beforeSend: beforeSend,
-            success: success
-        });
-    }
-}
-let newCap = new Captcha();
-newCap.reset();
-$("#login").click(function() {
-    if ($("#inputcode").val() != "") {
-        newCap.check($("#inputcode").val(), newCap);
-    } else {
-        $("#alert").addClass("text-danger");
-        $("#alert").html("Please enter the code");
-        $("#alert").show();
-    }
+		if (status == 0) $("#alert_parent").addClass("alert-danger").show();
+		else $("#alert_parent").addClass("alert-success").show();
+
+		$("#alert_msg").html(msg);
+	};
+	reset = () => $("#captcha_img").attr("src", this.captcha_url);
+	check = (value, captcha) => {
+		let newFormData = new FormData();
+		newFormData.append("entered_code", value);
+
+		let beforeSend = () => $("#check_btn").attr("disabled", true).html("Please Wait...");
+		let success = (data) => {
+			$("#check_btn").attr("disabled", false).html("Check");
+
+			if (data == 1) this.changeAlert(data, "You are human :)");
+			else this.changeAlert(data, "You are not human :(");
+
+			$("#code_input").val("");
+			captcha.reset();
+		}
+		$.ajax({
+			url: this.check_url,
+			type: "POST",
+			data: newFormData,
+			contentType: false,
+			processData: false,
+			beforeSend: beforeSend,
+			success: success
+		});
+	};
+};
+
+const newCaptcha = new Captcha();
+newCaptcha.reset();
+
+$("#reset_btn").click(() => newCaptcha.reset());
+$("#check_btn").click(() => {
+	const codeValue = $("#code_input").val();
+	if (codeValue) newCaptcha.check(codeValue, newCaptcha);
+	else newCaptcha.changeAlert(0, "Please enter code.");
 });
-$(".hidealert").focus(function() {
-    $("#alert").removeClass("text-danger", "text-success").html("");
-});
-$("#reset").click(function() {
-    newCap.reset();
-});
+$(".close").click(() => $("#alert_parent").hide());
 </script>

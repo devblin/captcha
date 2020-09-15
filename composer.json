@@ -1,0 +1,8 @@
+{
+	"name": "captcha/web",
+	"description": "Captcha verification implementation using PHP",
+	"require": {
+		"php": "^8.0.2",
+		"ext-gd": "*"
+	}
+}
