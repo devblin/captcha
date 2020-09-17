@@ -8,6 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="index.js"></script>
     <title>Captcha</title>
 </head>
 
@@ -33,8 +34,8 @@
 $("#alert").hide();
 
 class Captcha {
-    posturl = "http://localhost/Captcha/check.php";
-    imgurl = "http://localhost/Captcha/captcha.php";
+    posturl = baseUrl + "/check.php";
+    imgurl = baseUrl + "/captcha.php";
     reset = () => {
         $("#captchaimg").attr("src", this.imgurl);
     }
