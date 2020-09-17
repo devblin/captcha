@@ -1,9 +1,8 @@
 <?php
 session_start();
 
-$randCode = md5(rand());
 
-$code = substr($randCode, 0, 6);
+$code = substr(md5(rand()), 0, 6);
 
 $_SESSION['code'] = $code;
 
