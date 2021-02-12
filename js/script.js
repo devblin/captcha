@@ -1,5 +1,4 @@
 "use strict";
-
 $("#alert_parent").hide();
 
 class Captcha {
@@ -11,17 +10,12 @@ class Captcha {
 	changeAlert = (status, msg) => {
 		$("#alert_parent").removeClass("alert-danger", "alert-success");
 
-		if (status == 0) $("#alert_parent").addClass("alert-danger")
-		else $("#alert_parent").addClass("alert-success")
+		if (status == 0) $("#alert_parent").addClass("alert-danger").show();
+		else $("#alert_parent").addClass("alert-success").show();
 
 		$("#alert_msg").html(msg);
-		$("#alert_parent").show();
 	};
-
-	reset = () => {
-		$("#captcha_img").attr("src", this.captcha_url);
-	};
-
+	reset = () => $("#captcha_img").attr("src", this.captcha_url);
 	check = (value, captcha) => {
 		let newFormData = new FormData();
 		newFormData.append("entered_code", value);
@@ -36,7 +30,6 @@ class Captcha {
 			$("#code_input").val("");
 			captcha.reset();
 		}
-
 		$.ajax({
 			url: this.check_url,
 			type: "POST",
@@ -52,21 +45,10 @@ class Captcha {
 const newCaptcha = new Captcha();
 newCaptcha.reset();
 
-$("#reset_btn").click(function () {
-	newCaptcha.reset();
-});
-
-$("#check_btn").click(function () {
+$("#reset_btn").click(() => newCaptcha.reset());
+$("#check_btn").click(() => {
 	const codeValue = $("#code_input").val();
-	if (codeValue) {
-		newCaptcha.check(codeValue, newCaptcha);
-	} else {
-		$("#alert_parent").addClass("alert-danger");
-		$("#alert_msg").html("Please enter the code.");
-		$("#alert_parent").show();
-	}
+	if (codeValue) newCaptcha.check(codeValue, newCaptcha);
+	else newCaptcha.changeAlert(0, "Please enter code.");
 });
-
-$(".close").click(function () {
-	$("#alert_parent").hide();
-});
+$(".close").click(() => $("#alert_parent").hide());
