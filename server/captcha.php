@@ -8,7 +8,9 @@ if(get_extension_funcs("gd")) {
 	$_SESSION['code'] = $code;
 
 	header('Content-Type: image/png');
+
 	$image = imagecreatetruecolor(200, 38);
+
 	$bg_color = imagecolorallocate($image, 214, 200, 230);
 
 	$text_color = imagecolorallocate($image, 0, 0, 0);
@@ -20,6 +22,7 @@ if(get_extension_funcs("gd")) {
 	$angle = rand(-2, 10);
 
 	imagettftext($image, 20, $angle, 60, 35, $text_color, $font_fam, $code);
+
 	$pixel = imagecolorallocate($image, 0, 0, 0);
 
 	for ($i = 0; $i < 1000; $i++) {
@@ -33,6 +36,7 @@ if(get_extension_funcs("gd")) {
 	}
 
 	imagepng($image);
+	
 	imagedestroy($image);
 }
 else {
